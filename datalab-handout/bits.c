@@ -142,7 +142,7 @@ NOTES:
  *   Max ops: 14
  *   Rating: 1
  */
-int bitXor(int x, int y) {
+int bitXor(int x, int y) { //* Finish.
   return (~(x & y)) & (~((~x) & (~y)));
 }
 /* 
@@ -151,10 +151,12 @@ int bitXor(int x, int y) {
  *   Max ops: 4
  *   Rating: 1
  */
-int tmin(void) {
-
-  return 2;
-
+int tmin(void) { //* Finish
+  /* 
+   ! I use gpt to solve this problem.
+   * Since, I never realized that I can use constant numbers.
+   */
+  return 1 << 31;
 }
 //2
 /*
@@ -164,8 +166,11 @@ int tmin(void) {
  *   Max ops: 10
  *   Rating: 1
  */
-int isTmax(int x) {
-  return 2;
+int isTmax(int x) { //* Finish.
+  // Max two's compement number: 1<<32-1.
+  // 1. Add one: x + 1 -> negative integer.
+  // 2. Use !!(x+1) to avoid -1.
+  return !(x + (x + 1) + 1) & !!(x + 1);
 }
 /* 
  * allOddBits - return 1 if all odd-numbered bits in word set to 1
@@ -175,8 +180,16 @@ int isTmax(int x) {
  *   Max ops: 12
  *   Rating: 2
  */
-int allOddBits(int x) {
-  return 2;
+int allOddBits(int x) { //* Finish
+  /*
+   ! I use gpt to solve this problem.
+   * Since, I believed that 0xAA represented 4 bits.
+   * 
+   */
+  // Construct a mask.
+  int mask = 0xAA << 24 | 0xAA << 16 | 0xAA << 8 | 0xAA;
+  x = x & mask;
+  return !(x ^ mask);
 }
 /* 
  * negate - return -x 
@@ -185,8 +198,10 @@ int allOddBits(int x) {
  *   Max ops: 5
  *   Rating: 2
  */
-int negate(int x) {
-  return 2;
+int negate(int x) { //* Finish.
+  // 0x0110 2 + 4
+  // 0x1001
+  return (~x) + 1;
 }
 //3
 /* 
@@ -198,8 +213,17 @@ int negate(int x) {
  *   Max ops: 15
  *   Rating: 3
  */
-int isAsciiDigit(int x) {
-  return 2;
+int isAsciiDigit(int x) { //*Finish
+  /*
+   ! I use gpt to solve this problem.
+   * Since I don't know how to check whether a value is within a given range.
+   */
+  // Represent: x - 0x30
+  int lowerBound = ~(0x30) + 1 + x;
+  // Represent: 0x39 - x
+  int upperBound = ~(x) + 1 + 0x39;
+  // Check the sign bit.
+  return !((lowerBound | upperBound) >> 31);
 }
 /* 
  * conditional - same as x ? y : z 
@@ -208,8 +232,15 @@ int isAsciiDigit(int x) {
  *   Max ops: 16
  *   Rating: 3
  */
-int conditional(int x, int y, int z) {
-  return 2;
+int conditional(int x, int y, int z) { //* Finish
+  /*
+   !  I use gpt to solve this problem.
+   * if x <=> !!(x)
+   * !!(x) == 1 -> mask = 1111
+   * !!(x) == 0 -> mask = 0000
+   */
+  int mask = ~(!!(x)) + 1;
+  return (mask & y) | (~mask & z);
 }
 /* 
  * isLessOrEqual - if x <= y  then return 1, else return 0 
@@ -218,8 +249,29 @@ int conditional(int x, int y, int z) {
  *   Max ops: 24
  *   Rating: 3
  */
-int isLessOrEqual(int x, int y) {
-  return 2;
+int isLessOrEqual(int x, int y) { //*Finish 
+  /*
+   * I tackled this problem on my own.
+   * Initially, I sought to resolve it by checking the sign bit of (y - x).
+   * However, I discovered that if both x and y are very small negative numbers,
+   * (y - x) could cause an overflow. As a result, I decided to split the problem
+   * into two parts.
+   * First, we check the top 31 bits using (y - x), which is the same as (y + ~x + 1).
+   * Second, we specifically examine the lowbit of x and y.
+   * When the top 31 bits of x and y are equal, we need to assess the lowbit of x and y.
+   */
+  // y - x >= 0
+  // x - y <= 0
+  int lowX = x & 1;
+  int lowY = y & 1;
+  int cx = x >> 1;
+  int cy = y >> 1;
+  int ySubx = cy + (~cx) + 1;
+  // y_c >= x_c => (sub >> 31) == 0.
+  // if y_c == x_c we need to check lowX and lowY.
+  // Only the case lowX = 1 and lowY = 0 don't meet our execption.
+  int yEqX = !(cx ^ cy);
+  return !(ySubx >> 31) & ((yEqX & !(lowX & (lowY ^ 1))) | (!yEqX));
 }
 //4
 /* 
@@ -230,8 +282,15 @@ int isLessOrEqual(int x, int y) {
  *   Max ops: 12
  *   Rating: 4 
  */
-int logicalNeg(int x) {
-  return 2;
+int logicalNeg(int x) { //* Finish
+  /*
+   ! I use gpt to solve this problem.
+   * I'm completely clueless about this problem. 
+   */
+  // Only when x is equal to zero the flag highest bit will be zero.
+  // When x is equal to zero, the highest bit of the flag will also be zero.
+  int flag = (x | (~x + 1));
+  return ((flag >> 31) & 0x01) ^ 1;
 }
 /* howManyBits - return the minimum number of bits required to represent x in
  *             two's complement
@@ -245,8 +304,39 @@ int logicalNeg(int x) {
  *  Max ops: 90
  *  Rating: 4
  */
-int howManyBits(int x) {
-  return 0;
+int howManyBits(int x) { //* Finish
+  /*
+   ! I use gpt to solve this problem.
+   * I'm completely clueless about this problem.
+   */
+  // The problem it to find the highest bit of x.
+  int sign, bit16, bit8, bit4, bit2, bit1, bit0;
+  sign = x >> 31;
+
+  // Bitwise XOR with sign gives us the value with all the bits flipped 
+  // if the number was negative. This allows us to always look for the left-most
+  // 1 bit.
+  x ^= sign;
+
+  // Check if left 16 bits have a 1.
+  bit16 = !!(x >> 16) << 4;
+  // If bit16 is non-zero, shift x right by 16 else leave x unchanged.
+  x = x >> bit16;
+
+  bit8 = !!(x >> 8) << 3;
+  x = x >> bit8;
+
+  bit4 = !!(x >> 4) << 2;
+  x = x >> bit4;
+
+  bit2 = !!(x >> 2) << 1;
+  x = x >> bit2;
+
+  bit1 = !!(x >> 1);
+  x = x >> bit1;
+
+  bit0 = !!(x);
+  return bit16 + bit8 + bit4 + bit2 + bit1 + bit0 + 1;
 }
 //float
 /* 
