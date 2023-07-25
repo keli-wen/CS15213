@@ -350,8 +350,39 @@ int howManyBits(int x) { //* Finish
  *   Max ops: 30
  *   Rating: 4
  */
-unsigned floatScale2(unsigned uf) {
-  return 2;
+unsigned floatScale2(unsigned uf) { //* Finish
+  /*
+  ! I use gpt to solve this problem.
+  Single Precision (32 bits) IEEE
+
+  SEEEEEEE EFFFFFFF FFFFFFFF FFFFFFFF
+
+  S - Sign bit (1 bit)
+  E - Exponent (8 bits)
+  F - Fraction (23 bits)
+
+  Sign bit: 0 for positive, 1 for negative.
+  Exponent: Biased exponent value.
+  Fraction: Fraction portion of significand.
+
+  Examples:
+
+  0 01111111 00000000000000000000000 = 1.0
+  1 01111111 00000000000000000000000 = -1.0  
+  0 10001001 10010010000111111011011 = -3.14159
+  */
+  int exp = (uf >> 23) & 0xFF;  // extract exponent
+  int sign = uf & (1 << 31);  // extract sign bit
+  
+  if (exp == 0xFF) { // if uf is NaN or infinity
+    return uf;
+  } else if (exp == 0) { // if uf is denormalized
+    return sign | (uf << 1);
+  } else if (exp == 0xFE) { // if the result is going to be infinity
+    return sign | 0x7F800000;  // return +/- infinity
+  } else {  // if uf is a normalized float
+    return uf + (1 << 23);  // increase exponent by 1
+  }
 }
 /* 
  * floatFloat2Int - Return bit-level equivalent of expression (int) f
@@ -365,8 +396,39 @@ unsigned floatScale2(unsigned uf) {
  *   Max ops: 30
  *   Rating: 4
  */
-int floatFloat2Int(unsigned uf) {
-  return 2;
+int floatFloat2Int(unsigned uf) { //* Finish.
+  /*
+   * I tackled this problem on my own.
+   *  
+  */
+  unsigned exp = (uf >> 23) & 0xFF;
+  int sign = uf & (1 << 31);
+  unsigned frac = uf & 0x007FFFFFu;
+  // If uf is NaN or infinity.
+  if (exp == 0xFE) {
+    return 0x80000000u;
+  } else if (exp != 0) {
+    int E = exp - (0x7F);
+    if (E > 31) {
+      // Don't in the integer range.
+      return 0x80000000u;
+    } else if (E >= 0) {
+      int res;
+      if (23 - E >= 0)
+        res = ((1 << 23) | frac) >> (23 - E);
+      else 
+        res = ((1 << 23) | frac) << (E - 23);
+      if (!sign)
+        return res;
+      else 
+        return ~(res) + 1;
+    } else {
+      return 0;
+    }
+  } else {
+    // If uf is unformated, it'll never greater than one.
+    return 0;
+  }
 }
 /* 
  * floatPower2 - Return bit-level equivalent of the expression 2.0^x
@@ -381,6 +443,24 @@ int floatFloat2Int(unsigned uf) {
  *   Max ops: 30 
  *   Rating: 4
  */
-unsigned floatPower2(int x) {
-    return 2;
+unsigned floatPower2(int x) { //* Finish
+  /*
+   * I tackled the problem on my own.
+   * Just to check whether exponent is too large or too small and respond
+   * accordingly.
+   */
+  // Just one bit.
+  int bais = 0x7F;
+  if (x >= 0) {
+    if (x > 0x7F) return 0x7F800000u;
+    else {
+      return (x + bais) << 23;
+    }
+  } else {
+    x = -x;
+    if (x > 0x7E) return 0;
+    else {
+      return (bais - x) << 23 | (1 << 30);
+    }
+  }
 }
