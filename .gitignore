@@ -1,1 +1,2 @@
-btest
+# Ignore the datalab's btest.
+datalab-handout/btest
